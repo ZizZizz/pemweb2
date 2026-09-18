@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indie Showcase — Rogue-like Synthetic Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#061014',
+            surface: '#0a171d',
+            surfaceLight: '#10222a',
+            accent: '#8ceaf5',
+            accentDim: 'rgba(140, 234, 245, 0.15)',
+            textMain: '#f3f6f5',
+            textMuted: '#8d9c9b',
+            borderSubtle: 'rgba(140, 234, 245, 0.12)'
+          },
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+            mono: ['Space Mono', 'monospace']
+          },
+          animation: {
+            'pulse-glow': 'pulseGlow 4s ease-in-out infinite alternate',
+            'float-slow': 'floatSlow 7s ease-in-out infinite alternate'
+          },
+          keyframes: {
+            pulseGlow: {
+              '0%': { opacity: '0.35' },
+              '100%': { opacity: '0.75' }
+            },
+            floatSlow: {
+              '0%': { transform: 'translateY(0px)' },
+              '100%': { transform: 'translateY(-12px)' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::selection {
+      background-color: #8ceaf5;
+      color: #061014;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #061014;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(140, 234, 245, 0.3);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8ceaf5;
+    }
+
+    .warp-title {
+      clip-path: inset(100% -8% 0 -8%);
+      filter: blur(16px);
+      transform: scale3d(1.075, 0.68, 1);
+      opacity: 0;
+      transition: clip-path 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      text-shadow: 0 0 25px rgba(140, 234, 245, 0.5), 0 0 50px rgba(140, 234, 245, 0.2);
+    }
+    .warp-title.revealed {
+      clip-path: inset(0% -8% 0 -8%);
+      filter: blur(0px);
+      transform: scale3d(1, 1, 1);
+      opacity: 1;
+    }
+
+    .grain-layer {
+      pointer-events: none;
+      filter: url(#n);
+      opacity: 0.055;
+    }
+
+    .atmo-bloom {
+      background: radial-gradient(circle at 68% 45%, rgba(140, 234, 245, 0.28) 0%, rgba(140, 234, 245, 0.06) 38%, rgba(6, 16, 20, 0) 72%);
+    }
+
+    .hero-vignette {
+      background: radial-gradient(circle at 50% 50%, transparent 28%, rgba(6, 16, 20, 0.72) 75%, #061014 100%);
+    }
+
+    .perspective-card {
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+
+    .perspective-inner {
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="bg-background text-textMain font-sans antialiased overflow-x-hidden relative selection:bg-accent selection:text-background">
+
+  <svg class="fixed w-0 h-0 invisible" aria-hidden="true">
+    <filter id="n">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch" />
+    </filter>
+  </svg>
+
+  <div class="fixed inset-0 z-50 pointer-events-none grain-layer"></div>
+
+  <header id="site-header" class="fixed top-0 left-0 right-0 z-40 transition-all duration-300 backdrop-blur-md bg-background/80 border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <a href="#hero" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded-sm bg-accent/10 border border-accent/40 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-background transition-colors duration-300">
+          <iconify-icon icon="solar:cpu-bolt-linear" width="20"></iconify-icon>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-mono text-xs tracking-widest text-accent font-bold uppercase">INDIE SHOWCASE</span>
+          <span class="font-mono text-[10px] text-textMuted tracking-tighter">ARCHIVE // RECURSION 0.84</span>
+        </div>
+      </a>
+
+      <nav class="hidden lg:flex items-center gap-8 font-mono text-xs text-textMuted tracking-wider">
+        <a href="#hero" class="hover:text-accent transition-colors">01//AETHER</a>
+        <a href="#gameloop" class="hover:text-accent transition-colors">02//GAME-LOOP</a>
+        <a href="#neural" class="hover:text-accent transition-colors">03//SYNTHETICS</a>
+        <a href="#chassis" class="hover:text-accent transition-colors">04//CHASSIS</a>
+        <a href="#timeline" class="hover:text-accent transition-colors">05//TIMELINE</a>
+        <a href="#gallery" class="hover:text-accent transition-colors">06//GALLERY</a>
+      </nav>
+
+      <div class="hidden sm:flex items-center gap-4">
+        <div class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full border border-accent/20 bg-accent/5 font-mono text-[10px] text-accent">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent animate-ping"></span>
+          <span>ROGUE-LIKE RUNTIME: ACTIVE</span>
+        </div>
+        <button class="magnetic-btn px-5 py-2.5 rounded-sm bg-accent text-background font-mono text-xs font-bold tracking-wider hover:shadow-[0_0_24px_rgba(140,234,245,0.4)] transition-all flex items-center gap-2">
+          <span>CONNECT SEED</span>
+          <iconify-icon icon="solar:arrow-right-up-linear" width="14"></iconify-icon>
+        </button>
+      </div>
+
+      <button id="mobile-menu-toggle" class="lg:hidden w-10 h-10 flex items-center justify-center text-accent border border-accent/20 rounded bg-accent/5 hover:bg-accent/10 focus:outline-none" aria-label="Toggle Navigation">
+        <iconify-icon id="mobile-icon" icon="solar:hamburger-menu-linear" width="24"></iconify-icon>
+      </button>
+    </div>
+
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-accent/10 bg-background/95 backdrop-blur-xl px-6 py-8 flex-col gap-6 font-mono text-sm">
+      <a href="#hero" class="mobile-nav-link text-textMuted hover:text-accent flex items-center justify-between">
+        <span>01 // AETHER STAGE</span>
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+      <a href="#gameloop" class="mobile-nav-link text-textMuted hover:text-accent flex items-center justify-between">
+        <span>02 // GAME LOOP MECHANICS</span>
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+      <a href="#neural" class="mobile-nav-link text-textMuted hover:text-accent flex items-center justify-between">
+        <span>03 // NEURAL INCUBATION</span>
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+      <a href="#chassis" class="mobile-nav-link text-textMuted hover:text-accent flex items-center justify-between">
+        <span>04 // CHASSIS ARCHITECTURE</span>
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+      <a href="#timeline" class="mobile-nav-link text-textMuted hover:text-accent flex items-center justify-between">
+        <span>05 // DEV PROGRESSION</span>
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+      <a href="#gallery" class="mobile-nav-link text-textMuted hover:text-accent flex items-center justify-between">
+        <span>06 // VISUAL REPOSITORIES</span>
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+      <div class="pt-4 border-t border-white/10 flex flex-col gap-3">
+        <div class="flex items-center justify-between text-xs text-accent">
+          <span>SEED PROTOCOL</span>
+          <span>45.92° // 812m</span>
+        </div>
+        <button class="w-full py-3 bg-accent text-background font-mono text-xs font-bold tracking-wider rounded-sm flex items-center justify-center gap-2">
+          <span>INITIALIZE RUN</span>
+          <iconify-icon icon="solar:play-circle-linear" width="16"></iconify-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" class="relative isolate h-[420svh] w-full" style="--scroll: 0; --mx: 0px; --my: 0px;">
+      <div class="sticky top-0 h-[100svh] w-full overflow-hidden flex items-center justify-center">
+
+        <div id="hero-layer-1" class="absolute inset-0 z-[1] will-change-transform bg-cover bg-center transition-transform duration-75"
+          style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/f66df6d7-cac8-4456-8543-0ae8ee5b2e9d_3840w.webp');
+                 transform: translate3d(calc(var(--mx) * 0.015), calc(var(--my) * 0.015 + var(--scroll) * -45px), -120px) scale(1.12);">
+        </div>
+
+        <div id="hero-layer-2" class="absolute inset-0 z-[2] will-change-transform bg-cover bg-center transition-transform duration-75"
+          style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/2c493c39-21b4-4384-88ee-ed6ca4f5c2f9_3840w.webp');
+                 transform: translate3d(calc(var(--mx) * 0.03), calc(var(--my) * 0.03 + var(--scroll) * -95px), -80px) scale(1.08);">
+        </div>
+
+        <div id="hero-layer-3" class="absolute inset-0 z-[3] will-change-transform bg-contain md:bg-cover bg-no-repeat bg-center transition-transform duration-75 pointer-events-none"
+          style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/e5da78b0-2689-4e45-bb46-34f476a3fbf1_1600w.webp');
+                 transform: translate3d(calc(var(--mx) * 0.05), calc(var(--my) * 0.05 + var(--scroll) * -160px), -40px) scale(1.05);">
+        </div>
+
+        <div id="hero-layer-4" class="absolute inset-0 z-[4] will-change-transform bg-cover bg-center transition-transform duration-75 pointer-events-none"
+          style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/b4062d84-a168-4648-a35a-7e3943b078d7_3840w.webp');
+                 transform: translate3d(calc(var(--mx) * 0.08), calc(var(--my) * 0.08 + var(--scroll) * -240px), 0px);">
+        </div>
+
+        <div id="hero-layer-5" class="absolute inset-0 z-[5] will-change-transform bg-cover bg-bottom transition-transform duration-75 pointer-events-none"
+          style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/a03e8119-1b64-41ca-a1fc-5f5cc2eb3ad1_3840w.webp');
+                 transform: translate3d(calc(var(--mx) * 0.12), calc(var(--my) * 0.12 + var(--scroll) * -380px), 40px) scale(1.04);">
+        </div>
+
+        <div id="hero-layer-6" class="absolute inset-0 z-[6] will-change-transform bg-cover bg-center transition-opacity duration-300 pointer-events-none"
+          style="background-image: url('https://cdn.midjourney.com/0aefa95b-c38a-4870-a425-ef60a197c010/0_0.png?w=800&q=80');
+                 opacity: clamp(0, calc((var(--scroll) - 0.52) * 2.5), 1);
+                 transform: translate3d(0, calc((1 - var(--scroll)) * 80px), 60px) scale(1.06);">
+        </div>
+
+        <div id="hero-layer-7" class="absolute inset-0 z-[7] atmo-bloom pointer-events-none animate-pulse-glow"></div>
+        <div id="hero-layer-8" class="absolute inset-0 z-[8] pointer-events-none"
+          style="background: radial-gradient(circle at 35% 60%, rgba(140, 234, 245, 0.14) 0%, transparent 55%);"></div>
+
+        <div id="hero-layer-10" class="absolute inset-0 z-[10] hero-vignette pointer-events-none"></div>
+
+        <div id="hero-layer-11" class="absolute inset-0 z-[11] grain-layer"></div>
+
+        <div id="hero-layer-20" class="absolute inset-0 z-[20] flex flex-col justify-between p-6 sm:p-12 lg:p-16 pointer-events-none">
+
+          <div class="flex items-center justify-between text-xs font-mono text-accent/80 tracking-widest uppercase mt-20">
+            <div class="flex items-center gap-3">
+              <span class="inline-block w-2 h-2 bg-accent rounded-full animate-ping"></span>
+              <span>GEO-TELEMETRY: LAT 45.92° // ALT 812m</span>
+            </div>
+            <div class="hidden sm:flex items-center gap-6">
+              <span>PROCEDURAL SEED: #0x8F9B2</span>
+              <span>SYNCHRONICITY: 99.8%</span>
+            </div>
+          </div>
+
+          <div class="text-center my-auto flex flex-col items-center justify-center max-w-5xl mx-auto pointer-events-auto">
+            <div id="primary-title-wrap" class="transition-opacity duration-300" style="opacity: clamp(0, calc((0.75 - var(--scroll)) * 2.2), 1);">
+              <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent font-mono text-xs tracking-widest uppercase mb-6 shadow-[0_0_15px_rgba(140,234,245,0.2)]">
+                <iconify-icon icon="solar:plain-bold" width="14"></iconify-icon>
+                <span>ROGUE-LIKE HUMAN CHASSIS ENGINE</span>
+              </div>
+              <h1 class="warp-title revealed text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter uppercase leading-[0.9] text-white">
+                INDIE<br><span class="text-accent drop-shadow-[0_0_35px_rgba(140,234,245,0.5)]">SHOWCASE</span>
+              </h1>
+              <p class="mt-6 max-w-xl mx-auto font-sans text-sm sm:text-base text-textMuted leading-relaxed">
+                A hyper-fidelity convergence of rogue-like game loops and biomechanical android morphology. Traverse through multi-layered procedural epochs.
+              </p>
+            </div>
+
+            <div id="secondary-title-wrap" class="transition-all duration-500 absolute" style="opacity: clamp(0, calc((var(--scroll) - 0.58) * 4), 1); transform: translateY(calc((0.58 - var(--scroll)) * 60px));">
+              <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-accent/40 bg-background/80 text-accent font-mono text-xs tracking-widest uppercase mb-4 backdrop-blur-md">
+                <iconify-icon icon="solar:eye-linear" width="14"></iconify-icon>
+                <span>WORLD TRANSITION // PHASE TWO</span>
+              </div>
+              <h2 class="warp-title revealed text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tight text-accent drop-shadow-[0_0_40px_rgba(140,234,245,0.6)]">
+                BEYOND THE VEIL
+              </h2>
+              <p class="mt-4 font-mono text-xs sm:text-sm text-textMuted tracking-wider max-w-lg mx-auto">
+                ENTERING SYNTHETIC DEPTH HORIZON // 420SVH TRAVERSED
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs font-mono text-textMuted border-t border-white/10 pt-4">
+            <div class="flex items-center gap-2">
+              <span class="text-accent font-bold">SCROLL RATIO:</span>
+              <span id="scroll-progress-indicator">0.00%</span>
+            </div>
+            <div class="flex items-center gap-2 text-accent animate-bounce">
+              <span>EXPLORE ROGUE MATRIX</span>
+              <iconify-icon icon="solar:arrow-down-linear" width="16"></iconify-icon>
+            </div>
+            <div class="hidden sm:block">
+              <span>PERSISTENCE: 420SVH CONTINUUM</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section id="gameloop" class="relative isolate py-32 px-6 border-t border-accent/15 bg-background">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-6">
+          <div>
+            <div class="font-mono text-xs text-accent tracking-widest uppercase mb-3 flex items-center gap-2">
+              <span class="w-2 h-0.5 bg-accent"></span>
+              <span>CORE MECHANICS // ITERATIVE MATRIX</span>
+            </div>
+            <h2 class="warp-title text-4xl sm:text-6xl font-bold tracking-tight uppercase">
+              THE GAME LOOP
+            </h2>
+          </div>
+          <p class="font-mono text-xs text-textMuted max-w-md leading-relaxed">
+            Every iteration extracts neural telemetry from procedural failure. Mechanics evolve across deterministic seed trees with perpetual chassis regeneration.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-5 relative group">
+            <div class="relative overflow-hidden rounded-sm border border-accent/25 bg-surface aspect-[4/5] shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+              <img src="https://cdn.midjourney.com/82c54d8c-ef92-44f9-870c-d445896e6d85/0_2.png?w=800&q=80"
+                   alt="Character Concept Sec 1"
+                   class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-90"></div>
+              <div class="absolute bottom-6 left-6 right-6 font-mono">
+                <div class="text-[10px] text-accent tracking-widest">ENTITY // SPECIMEN 01</div>
+                <div class="text-lg font-bold text-white uppercase mt-1">PROTOTYPE VALKYRIE</div>
+                <div class="flex items-center justify-between text-[11px] text-textMuted mt-3 pt-3 border-t border-white/10">
+                  <span>SEED: #AETHER-092</span>
+                  <span>PERMADEATH: ENFORCED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 flex flex-col gap-6">
+            <div class="p-8 rounded-sm border border-accent/15 bg-surface/60 backdrop-blur-sm relative overflow-hidden group hover:border-accent/40 transition-colors">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-accent text-sm font-bold">01/</span>
+                  <h3 class="text-xl font-bold uppercase tracking-wide">STATE MACHINE RECURSION</h3>
+                </div>
+                <iconify-icon icon="solar:refresh-circle-linear" class="text-accent text-2xl group-hover:rotate-180 transition-transform duration-500"></iconify-icon>
+              </div>
+              <p class="mt-4 text-sm text-textMuted leading-relaxed">
+                Dynamic cycle transitions where environmental hazards rewrite chassis subroutines. Real-time neural weighting adjusts enemy kinematic responses based on current player velocity and loadout.
+              </p>
+              <div class="mt-6 flex flex-wrap gap-2 font-mono text-[10px]">
+                <span class="px-2.5 py-1 bg-accent/10 border border-accent/20 text-accent">TICKS: 120HZ</span>
+                <span class="px-2.5 py-1 bg-white/5 border border-white/10 text-textMuted">RNG: SEED-DETERMINISTIC</span>
+                <span class="px-2.5 py-1 bg-white/5 border border-white/10 text-textMuted">MUTATION: RUNTIME</span>
+              </div>
+            </div>
+
+            <div class="p-8 rounded-sm border border-accent/15 bg-surface/60 backdrop-blur-sm relative overflow-hidden group hover:border-accent/40 transition-colors">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-accent text-sm font-bold">02/</span>
+                  <h3 class="text-xl font-bold uppercase tracking-wide">PROCEDURAL BIOME EXTRACTION</h3>
+                </div>
+                <iconify-icon icon="solar:layers-minimalistic-linear" class="text-accent text-2xl group-hover:scale-110 transition-transform duration-300"></iconify-icon>
+              </div>
+              <p class="mt-4 text-sm text-textMuted leading-relaxed">
+                Biomechanical chambers synthesized dynamically using wave function collapse. No two runs present identical structural topology or power node configurations.
+              </p>
+              <div class="mt-6 flex flex-wrap gap-2 font-mono text-[10px]">
+                <span class="px-2.5 py-1 bg-accent/10 border border-accent/20 text-accent">COLLAPSE: WFC</span>
+                <span class="px-2.5 py-1 bg-white/5 border border-white/10 text-textMuted">ROOM COUNT: 48 NODE MAX</span>
+                <span class="px-2.5 py-1 bg-white/5 border border-white/10 text-textMuted">PERLIN VARIANCE: .84</span>
+              </div>
+            </div>
+
+            <div class="p-8 rounded-sm border border-accent/15 bg-surface/60 backdrop-blur-sm relative overflow-hidden group hover:border-accent/40 transition-colors">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono text-accent text-sm font-bold">03/</span>
+                  <h3 class="text-xl font-bold uppercase tracking-wide">PERMANENT META-PROGRESSION</h3>
+                </div>
+                <iconify-icon icon="solar:shield-up-linear" class="text-accent text-2xl group-hover:translate-y-[-4px] transition-transform duration-300"></iconify-icon>
+              </div>
+              <p class="mt-4 text-sm text-textMuted leading-relaxed">
+                Deconstructed android components from previous runs are stored inside central mainframe archives, allowing firmware synthesis for future iterative prototypes.
+              </p>
+              <div class="mt-6 flex flex-wrap gap-2 font-mono text-[10px]">
+                <span class="px-2.5 py-1 bg-accent/10 border border-accent/20 text-accent">CORE CIPHER: PERSISTENT</span>
+                <span class="px-2.5 py-1 bg-white/5 border border-white/10 text-textMuted">MEMORY BANK: CLOUD-SYNC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="neural" class="relative isolate py-32 px-6 bg-surface border-t border-accent/10">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div class="lg:col-span-6">
+            <div class="font-mono text-xs text-accent tracking-widest uppercase mb-3 flex items-center gap-2">
+              <iconify-icon icon="solar:atom-linear" width="16"></iconify-icon>
+              <span>LAB SCENE // SECTOR 02</span>
+            </div>
+            <h2 class="warp-title text-4xl sm:text-6xl font-bold tracking-tight uppercase leading-none mb-8">
+              NEURAL<br>INCUBATION
+            </h2>
+            <p class="text-textMuted text-base leading-relaxed mb-8">
+              Inside the cybernetic testbed, humanoid forms are subjected to hundreds of thousands of simulated rogue iterations per second. Neural nodes adapt to kinetic impact, thermal shocks, and spatial anomalies.
+            </p>
+
+            <div class="space-y-4 font-mono text-xs">
+              <div class="p-4 rounded border border-white/10 bg-background/50 flex items-center justify-between">
+                <span class="text-textMuted">SIMULATION VELOCITY</span>
+                <span class="text-accent font-bold">14,200 CYCLES / SEC</span>
+              </div>
+              <div class="p-4 rounded border border-white/10 bg-background/50 flex items-center justify-between">
+                <span class="text-textMuted">SYNAPTIC SYNCHRONIZATION</span>
+                <span class="text-accent font-bold">99.984% QUANTUM ALIGN</span>
+              </div>
+              <div class="p-4 rounded border border-white/10 bg-background/50 flex items-center justify-between">
+                <span class="text-textMuted">FAILURE RATE RECOVERY</span>
+                <span class="text-accent font-bold">&lt; 0.12 MS ADAPTIVE</span>
+              </div>
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-white/10 flex items-center gap-6">
+              <button class="magnetic-btn px-6 py-3 bg-accent text-background font-mono text-xs font-bold tracking-wider rounded-sm flex items-center gap-2 hover:shadow-[0_0_20px_rgba(140,234,245,0.4)] transition-all">
+                <span>INSPECT LIVE INCUBATOR</span>
+                <iconify-icon icon="solar:scanner-linear" width="16"></iconify-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6">
+            <div class="relative rounded-sm overflow-hidden border border-accent/30 shadow-[0_0_50px_rgba(0,0,0,0.9)] group">
+              <img src="https://cdn.midjourney.com/54185736-8092-4220-ad87-5087d23bc6d8/0_2.png?w=800&q=80"
+                   alt="Lab Scene Sec 2"
+                   class="w-full h-auto object-cover contrast-110 group-hover:scale-105 transition-transform duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent"></div>
+              <div class="absolute top-4 right-4 px-3 py-1 bg-background/80 backdrop-blur-md border border-accent/40 font-mono text-[10px] text-accent">
+                CHAMBER // LIVE FEED 04
+              </div>
+              <div class="absolute bottom-6 left-6 font-mono text-xs text-textMuted">
+                <span>SUBJECT: SYNTH-CORE 09</span>
+                <div class="text-white font-bold tracking-widest text-sm mt-1">CYBERNETIC COCOON PHASE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="chassis" class="relative isolate py-32 px-6 bg-background border-t border-accent/15">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto mb-20">
+          <div class="font-mono text-xs text-accent tracking-widest uppercase mb-3 inline-flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-accent"></span>
+            <span>CHASSIS ANATOMY & HARDWARE SPECS</span>
+          </div>
+          <h2 class="warp-title text-4xl sm:text-6xl font-bold tracking-tight uppercase">
+            CHASSIS ARCHITECTURE
+          </h2>
+          <p class="mt-4 font-sans text-textMuted text-sm sm:text-base leading-relaxed">
+            Engineered with high-tensile carbon lattice, reactive optical sensory arrays, and direct neural-link bus interfaces.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <div class="rounded-sm border border-accent/20 bg-surface p-6 flex flex-col justify-between group hover:border-accent transition-all duration-300">
+            <div>
+              <div class="aspect-square rounded overflow-hidden border border-white/10 mb-6 relative">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/6a18d4d0-5547-45fe-9547-45b3287c56ce_1600w.jpg"
+                     alt="Profile Sec 3"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-background/80 font-mono text-[9px] text-accent">
+                  CRANIAL PROFILE
+                </div>
+              </div>
+              <h3 class="text-lg font-bold uppercase tracking-wide text-white">NEURAL SENSORY POD</h3>
+              <p class="mt-2 text-xs text-textMuted leading-relaxed">
+                Multi-spectrum lidar and acoustic resonance receivers mapping micro-fluctuations in procedural labyrinth boundaries.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[11px]">
+              <span class="text-textMuted">LATENCY</span>
+              <span class="text-accent">&lt; 0.04ms</span>
+            </div>
+          </div>
+
+          <div class="rounded-sm border border-accent/20 bg-surface p-6 flex flex-col justify-between group hover:border-accent transition-all duration-300">
+            <div>
+              <div class="aspect-square rounded overflow-hidden border border-white/10 mb-6 relative">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/706e738d-c98b-4b9c-8a4e-43e8a0f53424_1600w.png"
+                     alt="Mechanical Face"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-background/80 font-mono text-[9px] text-accent">
+                  FACIAL MATRIX
+                </div>
+              </div>
+              <h3 class="text-lg font-bold uppercase tracking-wide text-white">SUB-DERMAL ACTUATION</h3>
+              <p class="mt-2 text-xs text-textMuted leading-relaxed">
+                Piezoelectric micro-servos provide dynamic aerodynamic stability and reactive emotional emulation for rogue entity encounters.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[11px]">
+              <span class="text-textMuted">ACTUATION</span>
+              <span class="text-accent">4,800 N/m²</span>
+            </div>
+          </div>
+
+          <div class="rounded-sm border border-accent/20 bg-surface p-6 flex flex-col justify-between group hover:border-accent transition-all duration-300 md:col-span-2 lg:col-span-1">
+            <div>
+              <div class="aspect-square rounded overflow-hidden border border-white/10 mb-6 relative">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/42013611-20ae-4815-a74a-5a2b22a3a532_1600w.jpg"
+                     alt="Full Tech Render"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 bg-background/80 font-mono text-[9px] text-accent">
+                  CHASSIS HARNESS
+                </div>
+              </div>
+              <h3 class="text-lg font-bold uppercase tracking-wide text-white">ENDOSKELETAL RIGIDITY</h3>
+              <p class="mt-2 text-xs text-textMuted leading-relaxed">
+                Titanium-graphene composite frame capable of absorbing extreme kinetic deceleration during rogue descent protocols.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[11px]">
+              <span class="text-textMuted">IMPACT RATING</span>
+              <span class="text-accent">GRADE IX MIL-SPEC</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-sm border border-accent/30 overflow-hidden relative group">
+          <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/b75d6d95-bf54-4a0a-bb7c-4f0e00fc525e_3840w.jpg"
+               alt="Exploded View"
+               class="w-full h-auto max-h-[600px] object-cover contrast-125">
+          <div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent"></div>
+          <div class="absolute bottom-8 left-8 right-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 font-mono">
+            <div>
+              <div class="text-xs text-accent tracking-widest uppercase">DISASSEMBLY BLUEPRINT // EXPLODED SCHEMATIC</div>
+              <div class="text-2xl font-bold text-white uppercase mt-1">COMPONENT HIERARCHY MATRIX</div>
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+              <span class="px-3 py-1.5 bg-background/80 border border-accent/30 text-accent">TOTAL PARTS: 1,842</span>
+              <span class="px-3 py-1.5 bg-background/80 border border-white/20 text-textMuted">TOLERANCE: 0.002mm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="timeline" class="relative isolate py-32 px-6 bg-surface/50 border-t border-accent/15">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-24">
+          <div class="font-mono text-xs text-accent tracking-widest uppercase mb-3 flex items-center justify-center gap-2">
+            <iconify-icon icon="solar:history-linear" width="16"></iconify-icon>
+            <span>MILESTONES // DEVELOPMENT CHRONICLE</span>
+          </div>
+          <h2 class="warp-title text-4xl sm:text-6xl font-bold tracking-tight uppercase">
+            DEV TIMELINE
+          </h2>
+          <p class="mt-4 font-mono text-xs text-textMuted">
+            SYNCHRONIZED PROGRESSION ACROSS MULTIPLE GAME LOOP EXPERIMENTS
+          </p>
+        </div>
+
+        <div class="relative">
+          <div class="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 -translate-x-1/2">
+            <div id="timeline-progress-bar" class="w-full bg-accent origin-top scale-y-0 transition-transform duration-100 ease-out" style="height: 100%;"></div>
+          </div>
+
+          <div class="space-y-20">
+
+            <div class="timeline-item relative flex flex-col md:flex-row items-start gap-8 group">
+              <div class="md:w-1/2 md:text-right md:pr-12 pl-14 md:pl-0">
+                <span class="font-mono text-xs text-accent font-bold tracking-wider">EPOCH 01 // 2024.Q1</span>
+                <h3 class="text-xl font-bold uppercase mt-1 text-white">GENESIS SEED PROTOCOL</h3>
+                <p class="mt-2 text-sm text-textMuted leading-relaxed">
+                  First iteration of the 420svh continuous parallax canvas and procedural rogue-like room generation algorithm.
+                </p>
+              </div>
+              <div class="absolute left-6 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-background border-2 border-accent/40 flex items-center justify-center text-accent group-hover:border-accent group-hover:scale-110 transition-all z-10 shadow-[0_0_15px_rgba(140,234,245,0.3)]">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+              </div>
+              <div class="md:w-1/2 md:pl-12 pl-14">
+                <div class="p-4 rounded border border-accent/15 bg-background/80 font-mono text-xs text-textMuted">
+                  <div class="flex items-center justify-between text-accent mb-2">
+                    <span>BUILD: ALPHA_0.1</span>
+                    <iconify-icon icon="solar:check-circle-linear"></iconify-icon>
+                  </div>
+                  <span>WAVE COLLAPSE ALGORITHM INTEGRATED</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-center my-4 pl-6 md:pl-0">
+              <svg class="timeline-connector w-[1px] h-10 overflow-visible" viewBox="0 0 1 40">
+                <line class="timeline-line stroke-accent/40" x1="0.5" y1="0" x2="0.5" y2="40" stroke-width="2" stroke-dasharray="40" stroke-dashoffset="40" />
+              </svg>
+            </div>
+
+            <div class="timeline-item relative flex flex-col md:flex-row items-start gap-8 group">
+              <div class="md:w-1/2 md:text-right md:pr-12 pl-14 md:pl-0 order-2 md:order-1">
+                <div class="p-4 rounded border border-accent/15 bg-background/80 font-mono text-xs text-textMuted">
+                  <div class="flex items-center justify-between text-accent mb-2">
+                    <span>BUILD: BETA_0.4</span>
+                    <iconify-icon icon="solar:check-circle-linear"></iconify-icon>
+                  </div>
+                  <span>NEURAL WEIGHT SHARING ACROSS SESSIONS</span>
+                </div>
+              </div>
+              <div class="absolute left-6 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-background border-2 border-accent/40 flex items-center justify-center text-accent group-hover:border-accent group-hover:scale-110 transition-all z-10 shadow-[0_0_15px_rgba(140,234,245,0.3)]">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+              </div>
+              <div class="md:w-1/2 md:pl-12 pl-14 order-1 md:order-2">
+                <span class="font-mono text-xs text-accent font-bold tracking-wider">EPOCH 02 // 2024.Q3</span>
+                <h3 class="text-xl font-bold uppercase mt-1 text-white">SYNTHETIC CHASSIS HARDENING</h3>
+                <p class="mt-2 text-sm text-textMuted leading-relaxed">
+                  Real-time physics mesh integration and dynamic limb deformation based on procedural game-loop damage profiles.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex justify-center my-4 pl-6 md:pl-0">
+              <svg class="timeline-connector w-[1px] h-10 overflow-visible" viewBox="0 0 1 40">
+                <line class="timeline-line stroke-accent/40" x1="0.5" y1="0" x2="0.5" y2="40" stroke-width="2" stroke-dasharray="40" stroke-dashoffset="40" />
+              </svg>
+            </div>
+
+            <div class="timeline-item relative flex flex-col md:flex-row items-start gap-8 group">
+              <div class="md:w-1/2 md:text-right md:pr-12 pl-14 md:pl-0">
+                <span class="font-mono text-xs text-accent font-bold tracking-wider">EPOCH 03 // 2025.Q1</span>
+                <h3 class="text-xl font-bold uppercase mt-1 text-white">PERPETUAL RUNTIME STACK</h3>
+                <p class="mt-2 text-sm text-textMuted leading-relaxed">
+                  Full transition into high-fidelity web delivery with instant seed streaming and hardware-accelerated 3D parallax.
+                </p>
+              </div>
+              <div class="absolute left-6 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-background border-2 border-accent/40 flex items-center justify-center text-accent group-hover:border-accent group-hover:scale-110 transition-all z-10 shadow-[0_0_15px_rgba(140,234,245,0.3)]">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+              </div>
+              <div class="md:w-1/2 md:pl-12 pl-14">
+                <div class="p-4 rounded border border-accent/15 bg-background/80 font-mono text-xs text-textMuted">
+                  <div class="flex items-center justify-between text-accent mb-2">
+                    <span>BUILD: RELEASE_RC1</span>
+                    <iconify-icon icon="solar:bolt-linear"></iconify-icon>
+                  </div>
+                  <span>ONLINE ARCHIVE PROTOCOL DEPLOYED</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" class="relative isolate h-[500svh] bg-background border-t border-accent/15">
+      <div class="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col justify-between py-12 px-6">
+        
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between font-mono text-xs">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-accent animate-ping"></span>
+            <span class="text-accent font-bold uppercase">SECTION 07 // HORIZONTAL ARCHIVE</span>
+          </div>
+          <div class="text-textMuted">
+            <span>SCROLL DRIVEN // CARDS: 08 ARCHIVES</span>
+          </div>
+        </div>
+
+        <div class="relative w-full overflow-visible my-auto">
+          <div id="gallery-track" class="flex gap-8 items-center w-max will-change-transform pl-6 sm:pl-20 pr-32">
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="0">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://cdn.midjourney.com/82c54d8c-ef92-44f9-870c-d445896e6d85/0_2.png?w=800&q=80"
+                     alt="Archival 01"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: 797d7204 // 01
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">RECON CHASSIS</div>
+                  <div class="text-[11px] text-textMuted mt-1">BIOME PATROL // SPEC 01</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="1">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://cdn.midjourney.com/54185736-8092-4220-ad87-5087d23bc6d8/0_2.png?w=800&q=80"
+                     alt="Archival 02"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: 1388d04a // 02
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">SYNTHESIS VAT</div>
+                  <div class="text-[11px] text-textMuted mt-1">EMBRYONIC MATRIX</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="2">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/6a18d4d0-5547-45fe-9547-45b3287c56ce_1600w.jpg"
+                     alt="Archival 03"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: e1e263bd // 03
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">CRANIAL APEX</div>
+                  <div class="text-[11px] text-textMuted mt-1">OCULAR TELEMETRY</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="3">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/706e738d-c98b-4b9c-8a4e-43e8a0f53424_1600w.png"
+                     alt="Archival 04"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: 0877ab0f // 04
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">MECHANICAL VISAGE</div>
+                  <div class="text-[11px] text-textMuted mt-1">FACIAL ACTUATORS</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="4">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/b75d6d95-bf54-4a0a-bb7c-4f0e00fc525e_3840w.jpg"
+                     alt="Archival 05"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: 577a062c // 05
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">EXPLODED ASSEMBLY</div>
+                  <div class="text-[11px] text-textMuted mt-1">KINEMATIC CORE</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="5">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/42013611-20ae-4815-a74a-5a2b22a3a532_1600w.jpg"
+                     alt="Archival 06"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: f2f243ba // 06
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">CHASSIS HARNESS</div>
+                  <div class="text-[11px] text-textMuted mt-1">CARBON RIGIDITY</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="6">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/ede1771d-fef5-40ce-9c0c-602b07c57d6b_3840w.png"
+                     alt="Archival 07"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: 846dd896 // 07
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">HABITATION NODE</div>
+                  <div class="text-[11px] text-textMuted mt-1">BIOME SAFE-HOUSE</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="gallery-card perspective-card w-[320px] sm:w-[380px] h-[480px] shrink-0 rounded-sm border border-accent/20 bg-surface p-4 relative group" data-index="7">
+              <div class="perspective-inner w-full h-full relative overflow-hidden rounded bg-background">
+                <img src="https://cdn.midjourney.com/0aefa95b-c38a-4870-a425-ef60a197c010/0_0.png?w=800&q=80"
+                     alt="Archival 08"
+                     class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 px-2 py-1 bg-background/80 backdrop-blur font-mono text-[10px] text-accent border border-accent/30">
+                  ID: 2d0b0bfb // 08
+                </div>
+                <div class="absolute bottom-4 left-4 right-4 font-mono">
+                  <div class="text-white font-bold text-base uppercase">WORLD HORIZON</div>
+                  <div class="text-[11px] text-textMuted mt-1">THE BEYOND CONTINUUM</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between font-mono text-xs border-t border-white/10 pt-4">
+          <div class="flex items-center gap-4">
+            <span class="text-accent font-bold">GALLERY TRAVERSAL</span>
+            <div class="w-32 h-1 bg-white/10 rounded-full overflow-hidden">
+              <div id="gallery-progress-bar" class="h-full bg-accent w-0 transition-all duration-75"></div>
+            </div>
+          </div>
+          <div class="text-textMuted">
+            <span>HOVER TO TILT // DRIVEN BY VIEWPORT POSITION</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="transmission" class="relative isolate py-32 px-6 border-t border-accent/20 bg-background overflow-hidden">
+      <div class="absolute inset-0 -z-10 opacity-20 bg-cover bg-center"
+           style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/ede1771d-fef5-40ce-9c0c-602b07c57d6b_3840w.png');">
+      </div>
+      <div class="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/95 to-background"></div>
+
+      <div class="max-w-5xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent font-mono text-xs tracking-widest uppercase mb-8">
+          <iconify-icon icon="solar:transmission-bold" width="14"></iconify-icon>
+          <span>SYNCHRONIZE FREQUENCY</span>
+        </div>
+
+        <h2 class="warp-title text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter uppercase mb-6 text-white">
+          JOIN THE RECURSION
+        </h2>
+
+        <p class="max-w-xl mx-auto text-textMuted text-sm sm:text-base mb-12 font-mono">
+          Enter your terminal frequency to receive encrypted build manifests, rogue-like seed registries, and chassis firmware updates.
+        </p>
+
+        <form id="subscribe-form" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+          <input type="email"
+                 required
+                 placeholder="TERMINAL_FREQ@NETWORK.SH"
+                 class="flex-1 px-5 py-3.5 rounded-sm bg-surface/90 border border-accent/30 text-white font-mono text-xs placeholder:text-textMuted/50 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent">
+          <button type="submit"
+                  class="magnetic-btn px-8 py-3.5 bg-accent text-background font-mono text-xs font-bold uppercase tracking-wider rounded-sm hover:shadow-[0_0_25px_rgba(140,234,245,0.4)] transition-all flex items-center justify-center gap-2">
+            <span>TRANSMIT</span>
+            <iconify-icon icon="solar:plain-bold" width="14"></iconify-icon>
+          </button>
+        </form>
+
+        <div id="form-feedback" class="mt-4 font-mono text-xs text-accent hidden">
+          FREQUENCY LOGGED // STAND BY FOR PACKET SYNC
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/10 bg-surface py-12 px-6 font-mono text-xs text-textMuted">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 rounded-sm bg-accent/10 border border-accent/30 flex items-center justify-center text-accent">
+          <iconify-icon icon="solar:code-file-linear" width="14"></iconify-icon>
+        </div>
+        <span>INDIE SHOWCASE // AETHER ARCHIVE ENGINE</span>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <a href="#hero" class="hover:text-accent transition-colors">TOP//RELOAD</a>
+        <a href="#gameloop" class="hover:text-accent transition-colors">GAME LOOP</a>
+        <a href="#gallery" class="hover:text-accent transition-colors">ARCHIVES</a>
+        <span class="text-accent/40">|</span>
+        <span class="text-accent">SEED 420SVH</span>
+      </div>
+
+      <div>
+        <span>ALL TELEMETRY SYNCHRONIZED &copy; 2025</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const heroSection = document.getElementById('hero');
+      const scrollProgressIndicator = document.getElementById('scroll-progress-indicator');
+      const mobileToggle = document.getElementById('mobile-menu-toggle');
+      const mobileIcon = document.getElementById('mobile-icon');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+      const gallerySection = document.getElementById('gallery');
+      const galleryTrack = document.getElementById('gallery-track');
+      const galleryProgressBar = document.getElementById('gallery-progress-bar');
+      const galleryCards = document.querySelectorAll('.gallery-card');
+      const timelineSection = document.getElementById('timeline');
+      const timelineProgressBar = document.getElementById('timeline-progress-bar');
+      const timelineLines = document.querySelectorAll('.timeline-line');
+      const warpTitles = document.querySelectorAll('.warp-title');
+      const magneticBtns = document.querySelectorAll('.magnetic-btn');
+      const subscribeForm = document.getElementById('subscribe-form');
+      const formFeedback = document.getElementById('form-feedback');
+
+      let mouseX = 0;
+      let mouseY = 0;
+      let currentMouseX = 0;
+      let currentMouseY = 0;
+
+      window.addEventListener('mousemove', function (e) {
+        mouseX = (e.clientX - window.innerWidth / 2);
+        mouseY = (e.clientY - window.innerHeight / 2);
+      });
+
+      if (mobileToggle && mobileIcon && mobileMenu) {
+        mobileToggle.addEventListener('click', function () {
+          const isHidden = mobileMenu.classList.contains('hidden');
+          if (isHidden) {
+            mobileMenu.classList.remove('hidden');
+            mobileMenu.classList.add('flex');
+            mobileIcon.setAttribute('icon', 'solar:close-square-linear');
+          } else {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+            mobileIcon.setAttribute('icon', 'solar:hamburger-menu-linear');
+          }
+        });
+
+        mobileNavLinks.forEach(function (link) {
+          link.addEventListener('click', function () {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('flex');
+            mobileIcon.setAttribute('icon', 'solar:hamburger-menu-linear');
+          });
+        });
+      }
+
+      magneticBtns.forEach(function (btn) {
+        btn.addEventListener('mousemove', function (e) {
+          const rect = btn.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          const deltaX = Math.max(-6, Math.min(6, x * 0.25));
+          const deltaY = Math.max(-6, Math.min(6, y * 0.25));
+          btn.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
+        });
+
+        btn.addEventListener('mouseleave', function () {
+          btn.style.transform = 'translate3d(0, 0, 0)';
+        });
+      });
+
+      galleryCards.forEach(function (card) {
+        const inner = card.querySelector('.perspective-inner');
+        if (!inner) return;
+
+        card.addEventListener('mousemove', function (e) {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((centerY - y) / centerY) * 12;
+          const rotateY = ((x - centerX) / centerX) * 12;
+
+          inner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+          inner.style.boxShadow = '0 20px 40px rgba(140, 234, 245, 0.25)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+          inner.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+          inner.style.boxShadow = 'none';
+        });
+      });
+
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15
+      };
+
+      const warpObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+          }
+        });
+      }, observerOptions);
+
+      warpTitles.forEach(function (title) {
+        warpObserver.observe(title);
+      });
+
+      function renderLoop() {
+        currentMouseX += (mouseX - currentMouseX) * 0.08;
+        currentMouseY += (mouseY - currentMouseY) * 0.08;
+
+        if (heroSection) {
+          const heroRect = heroSection.getBoundingClientRect();
+          const totalHeroScroll = heroSection.offsetHeight - window.innerHeight;
+          const heroCurrentScroll = Math.max(0, -heroRect.top);
+          const scrollProgress = Math.min(1, Math.max(0, heroCurrentScroll / totalHeroScroll));
+
+          heroSection.style.setProperty('--scroll', scrollProgress.toFixed(4));
+          heroSection.style.setProperty('--mx', `${currentMouseX.toFixed(2)}px`);
+          heroSection.style.setProperty('--my', `${currentMouseY.toFixed(2)}px`);
+
+          if (scrollProgressIndicator) {
+            scrollProgressIndicator.textContent = `${(scrollProgress * 100).toFixed(1)}%`;
+          }
+        }
+
+        if (gallerySection && galleryTrack) {
+          const galleryRect = gallerySection.getBoundingClientRect();
+          const totalGalleryScroll = gallerySection.offsetHeight - window.innerHeight;
+          const galleryCurrentScroll = Math.max(0, -galleryRect.top);
+          const galleryProgress = Math.min(1, Math.max(0, galleryCurrentScroll / totalGalleryScroll));
+
+          const maxTrackScroll = galleryTrack.scrollWidth - window.innerWidth + 120;
+          const currentGallery = galleryProgress * Math.max(0, maxTrackScroll);
+
+          galleryTrack.style.transform = `translate3d(${-currentGallery}px, 0, 0)`;
+
+          if (galleryProgressBar) {
+            galleryProgressBar.style.width = `${(galleryProgress * 100).toFixed(1)}%`;
+          }
+
+          const viewportCenter = window.innerWidth / 2;
+          galleryCards.forEach(function (card) {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const distFromCenter = Math.abs(viewportCenter - cardCenter);
+            const maxDistance = window.innerWidth * 0.7;
+            const factor = Math.max(0, 1 - distFromCenter / maxDistance);
+            const scale = 0.92 + factor * 0.08;
+            const opacity = 0.5 + factor * 0.5;
+
+            card.style.transform = `scale(${scale.toFixed(3)})`;
+            card.style.opacity = opacity.toFixed(3);
+          });
+        }
+
+        if (timelineSection && timelineProgressBar) {
+          const tlRect = timelineSection.getBoundingClientRect();
+          const tlTotal = timelineSection.offsetHeight - window.innerHeight * 0.5;
+          const tlCurrent = Math.max(0, -tlRect.top + window.innerHeight * 0.25);
+          const tlProgress = Math.min(1, Math.max(0, tlCurrent / tlTotal));
+
+          timelineProgressBar.style.transform = `scaleY(${tlProgress.toFixed(3)})`;
+
+          timelineLines.forEach(function (line) {
+            const lineRect = line.getBoundingClientRect();
+            if (lineRect.top < window.innerHeight * 0.8) {
+              line.style.strokeDashoffset = '0';
+              line.style.transition = 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+            }
+          });
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      requestAnimationFrame(renderLoop);
+
+      if (subscribeForm && formFeedback) {
+        subscribeForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          formFeedback.classList.remove('hidden');
+          subscribeForm.reset();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
