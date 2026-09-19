@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Indie Showcase — A curated rogue-like synthetic archive featuring indie games, pixel art, and creative digital experiences.">
   <title>Indie Showcase — Rogue-like Synthetic Archive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1059,6 +1060,27 @@
           subscribeForm.reset();
         });
       }
+    })();
+  </script>
+
+  <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-accent/20 border border-accent/30 backdrop-blur-md flex items-center justify-center text-accent opacity-0 translate-y-4 pointer-events-none transition-all duration-300 hover:bg-accent/30 hover:scale-110" aria-label="Back to top">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <script>
+    (function() {
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 400) {
+          btn.style.opacity = '1';
+          btn.style.transform = 'translateY(0)';
+          btn.style.pointerEvents = 'auto';
+        } else {
+          btn.style.opacity = '0';
+          btn.style.transform = 'translateY(1rem)';
+          btn.style.pointerEvents = 'none';
+        }
+      });
     })();
   </script>
 </body>
